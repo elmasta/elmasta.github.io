@@ -1,3 +1,4 @@
+const svgns = "http://www.w3.org/2000/svg"
 var loginform = document.getElementById("login")
 var wrongCredential = document.getElementById("wrongCredential")
 var main = document.querySelector("main")
@@ -48,7 +49,10 @@ function graphRequest(token) {
 			user {
 				attrs
 			}
-			transaction {
+			transaction(order_by: {createdAt: asc}){
+				object {
+					id
+				}
 				type
 				path
 				amount
@@ -69,7 +73,6 @@ function graphRequest(token) {
 		let date_to_compare = new Date("2023-05-21T00:00:00.000000+00:00")
 		let dateList = []
 		dateList.push({date: new Date("2023-05-22T00:00:00.000000+00:00"), value: 0}) //beginning
-		dateList.push({date: new Date(), value: 0}) //today's date
 		for (let i in resp.data.transaction) {
 			let tmp_date = new Date(resp.data.transaction[i].createdAt)
 			if (resp.data.transaction[i].type == "xp" && tmp_date > date_to_compare && resp.data.transaction[i].eventId != 103 && resp.data.transaction[i].eventId != 227) {
@@ -85,12 +88,12 @@ function graphRequest(token) {
 				down += resp.data.transaction[i].amount
 			}
 		}
-		dateList.sort(datesCompare)
 		let tmp_count = 0
 		for (let i in dateList) {
 			tmp_count += dateList[i].value
 			dateList[i].value = tmp_count
 		}
+		dateList.push({date: new Date(), value: total_xp}) //today's date
 
 		//top info creation
 		let userInfo = document.getElementById("userInfo")
@@ -104,17 +107,83 @@ function graphRequest(token) {
 		newDiv.innerText = "Level: " + level
 		userInfo.appendChild(newDiv)
 		newDiv = document.createElement("div")
-		newDiv.innerText = "Audit ratio given: " + Math.floor(up)
-		userInfo.appendChild(newDiv)
-		newDiv = document.createElement("div")
-		newDiv.innerText = "Audit ratio received: " + Math.floor(down)
-		userInfo.appendChild(newDiv)
-		newDiv = document.createElement("div")
 		let ratio = Math.floor(up*100/down) * 0.01
 		newDiv.innerText = "Ratio: " + ratio
 		userInfo.appendChild(newDiv)
 		
+
 		//graph creation
+
+		//first graph
+		firstGraph = document.getElementById("ratioChart")
+		var svgElement = document.createElementNS(svgns, "svg")
+		svgElement.setAttribute("style", "border: 1px solid #000;")
+		svgElement.setAttribute("width", "1000")
+		svgElement.setAttribute("height", "60")
+		firstGraph.appendChild(svgElement)
+
+		var group = document.createElementNS("http://www.w3.org/2000/svg", "g")
+
+		let topLine = document.createElementNS(svgns, "rect")
+		topLine.setAttribute("x", 0)
+		topLine.setAttribute("y", 0)
+		if (up > down) {
+			topLine.setAttribute("width", "1000")
+			topLine.setAttribute("fill", "green")
+		} else {
+			if (ratio > 1) {
+				topLine.setAttribute("width", Math.floor(down*100/up) * 10)
+			} else {
+				topLine.setAttribute("width", ratio*1000)
+			}
+			topLine.setAttribute("fill", "black")
+		}
+		topLine.setAttribute("height", "25")
+		group.appendChild(topLine)
+
+		var SVGText = document.createElementNS(svgns, "text")
+		SVGText.setAttribute("x", "20")
+		SVGText.setAttribute("y", "20")
+		SVGText.setAttribute("font-family", "Arial")
+		SVGText.setAttribute("font-size", "16")
+		SVGText.setAttribute("fill", "white")
+		SVGText.textContent = "Audit ratio given: " + Math.floor(up)
+		group.appendChild(SVGText)
+
+		svgElement.appendChild(group)
+
+		group = document.createElementNS("http://www.w3.org/2000/svg", "g")
+
+		let bottomLine = document.createElementNS(svgns, "rect")
+		bottomLine.setAttribute("x", 0)
+		bottomLine.setAttribute("y", 35)
+		if (down > up) {
+			bottomLine.setAttribute("width", "1000")
+			bottomLine.setAttribute("fill", "red")
+		} else {
+			if (ratio > 1) {
+				bottomLine.setAttribute("width", Math.floor(down*100/up) * 10)
+			} else {
+				bottomLine.setAttribute("width", ratio*1000)
+			}
+			bottomLine.setAttribute("fill", "black")
+		}
+		bottomLine.setAttribute("height", "25")
+		group.appendChild(bottomLine)
+
+		var SVGText = document.createElementNS(svgns, "text")
+		SVGText.setAttribute("x", "20")
+		SVGText.setAttribute("y", "55")
+		SVGText.setAttribute("font-family", "Arial")
+		SVGText.setAttribute("font-size", "16")
+		SVGText.setAttribute("fill", "white")
+		SVGText.textContent = "Audit ratio received: " + Math.floor(down)
+		group.appendChild(SVGText)
+
+		svgElement.appendChild(group)
+
+
+		//second graph
 		var margin = {top: 10, right: 30, bottom: 30, left: 60},
 		width = 1400 - margin.left - margin.right,
 		height = 700 - margin.top - margin.bottom
@@ -159,8 +228,3 @@ function graphRequest(token) {
 	}
 	xhr.send(body)
 }
-
-function datesCompare(a, b) {
-    return a.date - b.date
-}
-

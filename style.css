@@ -15,3 +15,7 @@ form {
     display: flex;
     justify-content: center;
 }
+
+.mainElements {
+    margin: 1rem;
+}
