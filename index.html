@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <title>Graphql</title>
+</head>
+<body>
+    <header>
+        <form id="login">
+            <div>
+                <label for="username">Username or Email</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="headerSpacing"></div>
+            <div>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="headerSpacing"></div>
+            <div>
+                <input type="submit" id="submit" name="submit" value="login" required>
+            </div>
+        </form>
+        <div id="wrongCredential" style="color: red;">Wrong user or password</div>
+    </header>
+    <main>
+        <div id="userInfo"></div>
+        <div id="chart"></div>
+    </main>
+</body>
+<script src='https://d3js.org/d3.v4.min.js'></script>
+<script src="script.js"></script>
+</html>

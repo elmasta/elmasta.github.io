@@ -1,0 +1,17 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    padding: 1rem;
+}
+
+.headerSpacing {
+    width: 2rem;
+}
+
+form {
+    display: flex;
+    justify-content: center;
+}
